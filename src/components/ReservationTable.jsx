@@ -44,7 +44,9 @@ function ReservationTable() {
         loadReservations();
     };
 
-    const generateBill = async (id) => {
+const generateBill = async (id) => {
+
+    try {
 
         const response =
             await api.post(
@@ -52,9 +54,17 @@ function ReservationTable() {
             );
 
         alert(
-            `Total Bill ₹${response.data}`
+            `Parking Bill : ₹${response.data}`
         );
-    };
+
+    } catch(error) {
+
+        alert(
+            error.response?.data?.message
+            || "Unable to generate bill"
+        );
+    }
+};
 
     return (
 
