@@ -1,12 +1,13 @@
 import Navbar from "../components/Navbar";
 import DashboardCards from "../components/DashboardCards";
 import ReservationForm from "../components/ReservationForm";
+import ReservationActions from "../components/ReservationActions";
+import ReservationTable from "../components/ReservationTable";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
 
   return (
-
     <>
       <Navbar />
 
@@ -20,6 +21,7 @@ function Dashboard() {
 
         <ReservationForm />
 
+<ReservationTable/>
       </div>
     </>
   );
