@@ -1,14 +1,49 @@
 .table-card{
 
-    margin-top:30px;
-
-    background:#ffffff;
+    background:white;
 
     padding:25px;
 
     border-radius:12px;
 
     box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+    margin-top:25px;
+}
+
+.table-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+}
+
+.filters{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-bottom:20px;
+}
+
+.filters input,
+.filters select{
+
+    padding:10px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:8px;
+}
+
+.filters input{
+
+    flex:1;
 }
 
 table{
@@ -16,13 +51,11 @@ table{
     width:100%;
 
     border-collapse:collapse;
-
-    margin-top:20px;
 }
 
 th{
 
-    background:#1e293b;
+    background:#0f172a;
 
     color:white;
 
@@ -36,19 +69,91 @@ td{
     border-bottom:1px solid #e5e7eb;
 }
 
-td button{
+.entry-btn{
+
+    background:#16a34a;
+
+    color:white;
 
     border:none;
 
-    padding:8px 15px;
-
-    margin-right:8px;
+    padding:8px 12px;
 
     border-radius:6px;
 
     cursor:pointer;
+}
+
+.exit-btn{
+
+    background:#dc2626;
 
     color:white;
 
+    border:none;
+
+    padding:8px 12px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+}
+
+.bill-btn{
+
     background:#2563eb;
+
+    color:white;
+
+    border:none;
+
+    padding:8px 12px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+}
+
+.invoice-card{
+
+    margin-top:25px;
+
+    background:#f0fdf4;
+
+    padding:20px;
+
+    border-left:5px solid #22c55e;
+
+    border-radius:10px;
+}
+
+.invoice-card p{
+
+    margin-top:8px;
+}
+
+.amount{
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    color:#166534;
+
+    margin-top:15px;
+}
+
+@media(max-width:768px){
+
+    .filters{
+
+        flex-direction:column;
+    }
+
+    table{
+
+        display:block;
+
+        overflow-x:auto;
+    }
 }

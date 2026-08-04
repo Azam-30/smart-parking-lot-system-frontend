@@ -12,25 +12,33 @@ function ReservationForm() {
 
   const [result, setResult] = useState(null);
 
-  const reserve = async () => {
+const reserve = async () => {
 
     try {
 
-      const response =
-        await api.post(
-          "/api/reservations",
-          reservation
+        const response =
+            await api.post(
+                "/api/reservations",
+                reservation
+            );
+
+        setResult(response.data);
+
+        alert(
+            "✅ Parking slot reserved successfully"
         );
 
-      setResult(response.data);
+        if(onReservationCreated){
+            onReservationCreated();
+        }
 
-    } catch (error) {
+    } catch(error){
 
-      alert(
-        error.response?.data?.message ||
-        "Reservation Failed"
-      );
+        alert(
+            error.response?.data?.message
+        );
     }
+
   };
 
   return (

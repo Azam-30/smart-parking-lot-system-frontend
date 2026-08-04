@@ -1,30 +1,42 @@
 import Navbar from "../components/Navbar";
 import DashboardCards from "../components/DashboardCards";
 import ReservationForm from "../components/ReservationForm";
-import ReservationActions from "../components/ReservationActions";
 import ReservationTable from "../components/ReservationTable";
 import "../styles/Dashboard.css";
 
+import { useState } from "react";
+
 function Dashboard() {
 
-  return (
-    <>
-      <Navbar />
+    const [refreshFlag, setRefreshFlag] =
+        useState(false);
 
-      <div className="dashboard-container">
+    const refreshReservations = () => {
 
-        <h1 className="dashboard-title">
-          Smart Parking Dashboard
-        </h1>
+        setRefreshFlag(prev => !prev);
+    };
 
-        <DashboardCards />
+    return (
+        <>
+            <Navbar />
 
-        <ReservationForm />
+            <div className="dashboard-container">
 
-<ReservationTable/>
-      </div>
-    </>
-  );
+                <DashboardCards />
+
+                <ReservationForm
+                    onReservationCreated={
+                        refreshReservations
+                    }
+                />
+
+                <ReservationTable
+                    refreshFlag={refreshFlag}
+                />
+
+            </div>
+        </>
+    );
 }
 
 export default Dashboard;
