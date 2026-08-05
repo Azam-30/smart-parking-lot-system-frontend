@@ -2,129 +2,196 @@ import { useState } from "react";
 import api from "../api/axios";
 import "../styles/ReservationForm.css";
 
-function ReservationForm() {
+function ReservationForm({
+    onReservationCreated
+}) {
 
-  const [reservation, setReservation] = useState({
-    registrationNumber: "",
-    vehicleType: "CAR",
-    ev: false
-  });
+    const [reservation, setReservation] =
+        useState({
+            registrationNumber: "",
+            vehicleType: "CAR",
+            ev: false
+        });
 
-  const [result, setResult] = useState(null);
+    const [result,
+        setResult] = useState(null);
 
-const reserve = async () => {
+    const [message,
+        setMessage] = useState(null);
 
-    try {
+    const reserve = async () => {
 
-        const response =
-            await api.post(
-                "/api/reservations",
-                reservation
+        try {
+
+            const response =
+                await api.post(
+                    "/api/reservations",
+                    reservation
+                );
+
+            setResult(
+                response.data
             );
 
-        setResult(response.data);
+            setMessage({
+                type: "success",
+                text:
+                `✅ Slot ${response.data.slotNumber}
+                 reserved successfully`
+            });
 
-        alert(
-            "✅ Parking slot reserved successfully"
-        );
+            if(onReservationCreated){
 
-        if(onReservationCreated){
-            onReservationCreated();
+                onReservationCreated();
+            }
+
+            setTimeout(() => {
+
+                document
+                .querySelector(".table-card")
+                ?.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+            }, 300);
+
+        } catch(error){
+
+            setMessage({
+                type: "error",
+                text:
+                error.response?.data?.message
+                ||
+                "Unable to reserve slot."
+            });
         }
+    };
 
-    } catch(error){
+    return (
 
-        alert(
-            error.response?.data?.message
-        );
-    }
+        <div className="reservation-card">
 
-  };
+            <h2>
+                Reserve Parking Slot
+            </h2>
 
-  return (
+            {
+                message &&
+                (
+                    <div
+                        className={
+                            message.type ===
+                            "success"
+                            ?
+                            "success-message"
+                            :
+                            "error-message"
+                        }
+                    >
+                        {message.text}
+                    </div>
+                )
+            }
 
-    <div className="reservation-card">
+            <div className="form-grid">
 
-      <h2>Reserve Parking Slot</h2>
+                <input
+                    className="input-field"
+                    placeholder="Vehicle Number"
+                    value={
+                        reservation.registrationNumber
+                    }
+                    onChange={(e) =>
+                        setReservation({
+                            ...reservation,
+                            registrationNumber:
+                            e.target.value
+                        })
+                    }
+                />
 
-      <div className="form-grid">
+                <select
+                    className="input-field"
+                    value={reservation.vehicleType}
+                    onChange={(e) =>
+                        setReservation({
+                            ...reservation,
+                            vehicleType:
+                            e.target.value
+                        })
+                    }
+                >
+                    <option value="CAR">
+                        CAR
+                    </option>
 
-        <input
-          className="input-field"
-          placeholder="Registration Number"
-          onChange={(e) =>
-            setReservation({
-              ...reservation,
-              registrationNumber: e.target.value
-            })
-          }
-        />
+                    <option value="BIKE">
+                        BIKE
+                    </option>
 
-        <select
-          className="input-field"
-          onChange={(e) =>
-            setReservation({
-              ...reservation,
-              vehicleType: e.target.value
-            })
-          }
-        >
-          <option>CAR</option>
-          <option>BIKE</option>
-          <option>TRUCK</option>
-        </select>
+                    <option value="TRUCK">
+                        TRUCK
+                    </option>
+                </select>
 
-      </div>
+            </div>
 
-      <div className="checkbox-wrapper">
+            <div className="checkbox-wrapper">
 
-        <input
-          type="checkbox"
-          onChange={(e) =>
-            setReservation({
-              ...reservation,
-              ev: e.target.checked
-            })
-          }
-        />
+                <input
+                    type="checkbox"
+                    checked={reservation.ev}
+                    onChange={(e) =>
+                        setReservation({
+                            ...reservation,
+                            ev: e.target.checked
+                        })
+                    }
+                />
 
-        <span>EV Charging Required</span>
+                <span>
+                    EV Charging Required
+                </span>
 
-      </div>
+            </div>
 
-      <button
-        className="reserve-btn"
-        onClick={reserve}
-      >
-        Reserve Slot
-      </button>
+            <button
+                className="reserve-btn"
+                onClick={reserve}
+            >
+                Reserve Slot
+            </button>
 
-      {result && (
+            {
+                result &&
+                (
+                    <div className="success-card">
 
-        <div className="success-card">
+                        <h3>
+                            Reservation Successful
+                        </h3>
 
-          <h3>Reservation Successful</h3>
+                        <p>
+                            Reservation ID:
+                            {result.reservationId}
+                        </p>
 
-          <p>
-            Reservation ID :
-            {result.reservationId}
-          </p>
+                        <p>
+                            Slot:
+                            {result.slotNumber}
+                        </p>
 
-          <p>
-            Slot Number :
-            {result.slotNumber}
-          </p>
+                        <p>
+                            Status:
+                            {result.status}
+                        </p>
 
-          <p>
-            Status :
-            {result.status}
-          </p>
+                    </div>
+                )
+            }
 
         </div>
-      )}
-
-    </div>
-  );
+    );
 }
 
 export default ReservationForm;

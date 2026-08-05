@@ -2,19 +2,22 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import "../styles/ReservationTable.css";
 
-function ReservationTable(refreshFlag) {
+function ReservationTable({ refreshFlag }) {
 
-    const [reservations,
-        setReservations] = useState([]);
+    const [reservations, setReservations] =
+        useState([]);
 
-    const [search,
-        setSearch] = useState("");
+    const [search, setSearch] =
+        useState("");
 
-    const [statusFilter,
-        setStatusFilter] = useState("ALL");
+    const [statusFilter, setStatusFilter] =
+        useState("ALL");
 
-    const [invoice,
-        setInvoice] = useState(null);
+    const [invoice, setInvoice] =
+        useState(null);
+
+    const [notification, setNotification] =
+        useState(null);
 
     useEffect(() => {
 
@@ -35,9 +38,13 @@ function ReservationTable(refreshFlag) {
                 response.data
             );
 
-        } catch(err) {
+        } catch (error) {
 
-            console.log(err);
+            setNotification({
+                type: "error",
+                message:
+                    "Unable to load reservations."
+            });
         }
     };
 
@@ -49,13 +56,23 @@ function ReservationTable(refreshFlag) {
                 `/api/reservations/${id}/entry`
             );
 
+            setNotification({
+                type: "success",
+                message:
+                    "Vehicle entry recorded successfully."
+            });
+
             loadReservations();
 
-        } catch(err) {
+        } catch (error) {
 
-            alert(
-                err.response?.data?.message
-            );
+            setNotification({
+                type: "error",
+                message:
+                    error.response?.data?.message
+                    ||
+                    "Unable to mark entry."
+            });
         }
     };
 
@@ -67,13 +84,23 @@ function ReservationTable(refreshFlag) {
                 `/api/reservations/${id}/exit`
             );
 
+            setNotification({
+                type: "success",
+                message:
+                    "Vehicle exit recorded successfully."
+            });
+
             loadReservations();
 
-        } catch(err){
+        } catch (error) {
 
-            alert(
-                err.response?.data?.message
-            );
+            setNotification({
+                type: "error",
+                message:
+                    error.response?.data?.message
+                    ||
+                    "Unable to mark exit."
+            });
         }
     };
 
@@ -90,35 +117,55 @@ function ReservationTable(refreshFlag) {
                 response.data
             );
 
+            setNotification({
+                type: "success",
+                message:
+                    "Parking bill generated successfully."
+            });
+
             loadReservations();
 
-        } catch(err) {
+            document
+                .querySelector(".invoice-card")
+                ?.scrollIntoView({
+                    behavior: "smooth"
+                });
 
-            alert(
-                err.response?.data?.message ||
-                "Cannot generate bill"
-            );
+        } catch (error) {
+
+            setNotification({
+                type: "error",
+                message:
+                    error.response?.data?.message
+                    ||
+                    "Unable to generate bill."
+            });
         }
     };
 
     const filteredReservations =
-        reservations.filter(r => {
+        reservations.filter(
+            reservation => {
 
-            const searchMatch =
-                r.registrationNumber
-                    ?.toLowerCase()
-                    .includes(
-                        search.toLowerCase()
-                    );
+                const searchMatch =
+                    reservation.registrationNumber
+                        ?.toLowerCase()
+                        .includes(
+                            search.toLowerCase()
+                        );
 
-            const statusMatch =
-                statusFilter === "ALL"
-                ||
-                r.status === statusFilter;
+                const statusMatch =
+                    statusFilter === "ALL"
+                    ||
+                    reservation.status ===
+                    statusFilter;
 
-            return searchMatch &&
-                   statusMatch;
-        });
+                return (
+                    searchMatch &&
+                    statusMatch
+                );
+            }
+        );
 
     return (
 
@@ -131,6 +178,21 @@ function ReservationTable(refreshFlag) {
                 </h2>
 
             </div>
+
+            {notification && (
+
+                <div
+                    className={
+                        notification.type ===
+                        "success"
+                            ? "success-message"
+                            : "error-message"
+                    }
+                >
+                    {notification.message}
+                </div>
+
+            )}
 
             <div className="filters">
 
@@ -182,134 +244,170 @@ function ReservationTable(refreshFlag) {
 
                 <thead>
 
-                <tr>
+                    <tr>
 
-                    <th>ID</th>
+                        <th>ID</th>
 
-                    <th>Vehicle</th>
+                        <th>Vehicle</th>
 
-                    <th>Slot</th>
+                        <th>Slot</th>
 
-                    <th>Status</th>
+                        <th>Status</th>
 
-                    <th>Bill</th>
+                        <th>Bill</th>
 
-                    <th>Actions</th>
+                        <th>Actions</th>
 
-                </tr>
+                    </tr>
 
                 </thead>
 
                 <tbody>
 
-                {
-                    filteredReservations.map(
-                        reservation => (
+                    {
+                        filteredReservations
+                            .length === 0 ?
 
-                        <tr
-                            key={
-                                reservation.reservationId
-                            }
-                        >
+                            (
 
-                            <td>
-                                {
-                                reservation.reservationId
-                                }
-                            </td>
+                                <tr>
 
-                            <td>
-                                {
-                                reservation.registrationNumber
-                                }
-                            </td>
+                                    <td
+                                        colSpan="6"
+                                        className="empty-row"
+                                    >
+                                        No reservations found
+                                    </td>
 
-                            <td>
-                                {
-                                reservation.slotNumber
-                                }
-                            </td>
+                                </tr>
 
-                            <td>
-                                {
-                                reservation.status
-                                }
-                            </td>
+                            )
 
-                            <td>
+                            :
 
-                                {
-                                reservation.billAmount
-                                ?
-                                `₹${reservation.billAmount}`
-                                :
-                                "-"
-                                }
+                            (
 
-                            </td>
+                                filteredReservations
+                                    .map(
+                                        reservation => (
 
-                            <td>
+                                            <tr
+                                                key={
+                                                    reservation.reservationId
+                                                }
+                                            >
 
-                                {
-                                reservation.status ===
-                                "RESERVED" &&
+                                                <td>
+                                                    {
+                                                        reservation.reservationId
+                                                    }
+                                                </td>
 
-                                <button
-                                    className="entry-btn"
-                                    onClick={() =>
-                                        markEntry(
-                                            reservation.reservationId
+                                                <td>
+                                                    {
+                                                        reservation.registrationNumber
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        reservation.slotNumber
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        reservation.status
+                                                    }
+                                                </td>
+
+                                                <td>
+
+                                                    {
+                                                        reservation.billAmount
+                                                            ?
+                                                            `₹${reservation.billAmount}`
+                                                            :
+                                                            "-"
+                                                    }
+
+                                                </td>
+
+                                                <td>
+
+                                                    {
+
+                                                        reservation.status ===
+                                                        "RESERVED"
+                                                        &&
+
+                                                        <button
+                                                            className="entry-btn"
+                                                            onClick={() =>
+                                                                markEntry(
+                                                                    reservation.reservationId
+                                                                )
+                                                            }
+                                                        >
+                                                            Entry
+                                                        </button>
+                                                    }
+
+                                                    {
+
+                                                        reservation.status ===
+                                                        "PARKED"
+                                                        &&
+
+                                                        <button
+                                                            className="exit-btn"
+                                                            onClick={() =>
+                                                                markExit(
+                                                                    reservation.reservationId
+                                                                )
+                                                            }
+                                                        >
+                                                            Exit
+                                                        </button>
+                                                    }
+
+                                                    {
+
+                                                        reservation.status ===
+                                                        "COMPLETED"
+                                                        &&
+                                                        !reservation.billAmount
+                                                        &&
+
+                                                        <button
+                                                            className="bill-btn"
+                                                            onClick={() =>
+                                                                generateBill(
+                                                                    reservation.reservationId
+                                                                )
+                                                            }
+                                                        >
+                                                            Generate Bill
+                                                        </button>
+                                                    }
+
+                                                </td>
+
+                                            </tr>
+
                                         )
-                                    }
-                                >
-                                    Entry
-                                </button>
-                                }
+                                    )
 
-                                {
-                                reservation.status ===
-                                "PARKED" &&
+                            )
 
-                                <button
-                                    className="exit-btn"
-                                    onClick={() =>
-                                        markExit(
-                                            reservation.reservationId
-                                        )
-                                    }
-                                >
-                                    Exit
-                                </button>
-                                }
-
-                                {
-                                reservation.status ===
-                                "COMPLETED" &&
-
-                                <button
-                                    className="bill-btn"
-                                    onClick={() =>
-                                        generateBill(
-                                            reservation.reservationId
-                                        )
-                                    }
-                                >
-                                    Generate Bill
-                                </button>
-                                }
-
-                            </td>
-
-                        </tr>
-
-                    ))
-                }
+                    }
 
                 </tbody>
 
             </table>
 
             {
+
                 invoice &&
 
                 <div className="invoice-card">
@@ -319,42 +417,40 @@ function ReservationTable(refreshFlag) {
                     </h2>
 
                     <p>
-                        Reservation :
-                        {
-                        invoice.reservationId
-                        }
+                        Reservation ID :
+                        {" "}
+                        {invoice.reservationId}
                     </p>
 
                     <p>
-                        Vehicle :
-                        {
-                        invoice.registrationNumber
-                        }
+                        Vehicle Number :
+                        {" "}
+                        {invoice.registrationNumber}
                     </p>
 
                     <p>
-                        Slot :
-                        {
-                        invoice.slotNumber
-                        }
+                        Slot Number :
+                        {" "}
+                        {invoice.slotNumber}
                     </p>
 
                     <p>
                         Duration :
-                        {
-                        invoice.durationHours
-                        } Hours
+                        {" "}
+                        {invoice.durationHours}
+                        {" "}
+                        Hours
                     </p>
 
                     <p className="amount">
 
-                        ₹{
-                        invoice.amount
-                        }
+                        ₹
+                        {invoice.amount}
 
                     </p>
 
                 </div>
+
             }
 
         </div>
